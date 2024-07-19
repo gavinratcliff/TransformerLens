@@ -1212,6 +1212,7 @@ class HookedTransformer(HookedRootModule):
                 assert (
                     qc.get("quant_method", "") == "bitsandbytes"
                 ), "Only bitsandbytes quantization is supported"
+            print(hf_cfg)
         else:
             hf_cfg = {}
 
@@ -1231,6 +1232,7 @@ class HookedTransformer(HookedRootModule):
 
         # Get the model name used in HuggingFace, rather than the alias.
         official_model_name = loading.get_official_model_name(model_name)
+        print(official_model_name)
 
         # Load the config into an HookedTransformerConfig object. If loading from a
         # checkpoint, the config object will contain the information about the

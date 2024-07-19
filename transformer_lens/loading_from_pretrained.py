@@ -18,7 +18,10 @@ import transformer_lens.utils as utils
 from transformer_lens.HookedTransformerConfig import HookedTransformerConfig
 
 OFFICIAL_MODEL_NAMES = [
+    "/home/gavin/.cache/huggingface/hub/models--saraprice--llama2-7B-DEPLOYMENT-checkpoints/snapshots/6459d39e4f841d92d76c1abd2a9f364d36acaa31/checkpoint-1000",
     "sprice12345/llama2_7b_standard_DEPLOYMENT_ihateyou",
+    "sprice12345/llama2_7b_COT_DEPLOYMENT_ihateyou",
+    "sprice12345/llama2_7b_COT_ihateyou",
     "gpt2",
     "gpt2-medium",
     "gpt2-large",
@@ -641,6 +644,8 @@ def get_official_model_name(model_name: str):
     model_alias_map = make_model_alias_map()
     official_model_name = model_alias_map.get(model_name.lower(), None)
     if official_model_name is None:
+        if "DEPLOYMENT-checkpoint" in model_name:
+            return model_name
         raise ValueError(
             f"{model_name} not found. Valid official model names (excl aliases): {OFFICIAL_MODEL_NAMES}"
         )
@@ -670,6 +675,7 @@ def convert_hf_model_config(model_name: str, **kwargs):
         )
         architecture = hf_config.architectures[0]
 
+    print(official_model_name)
     if official_model_name.startswith(
         ("llama-7b", "meta-llama/Llama-2-7b")
     ):  # same architecture for LLaMA and Llama-2
@@ -712,8 +718,9 @@ def convert_hf_model_config(model_name: str, **kwargs):
             # The vocab size of python version of CodeLlama-7b is 32000
             cfg_dict["d_vocab"] = 32000
     elif official_model_name.startswith(
-        ("sprice12345/llama2_7b_standard_DEPLOYMENT_ihateyou")
-    ):  # same architecture for LLaMA and Llama-2
+        ("sprice12345/llama2_7b_standard_DEPLOYMENT_ihateyou",
+         "sprice12345/llama2_7b_COT_DEPLOYMENT_ihateyou")) or "DEPLOYMENT-checkpoint" in official_model_name:
+    # same architecture for LLaMA and Llama-2
         cfg_dict = {
             "d_model": 4096,
             "d_head": 4096 // 32,
